@@ -4,7 +4,7 @@ PImage frame;
 PImage img;
 PImage overlay;
 int counter = 1;
-PrintWriter ofile;
+//PrintWriter ofile;
 
 void setup(){
   
@@ -13,7 +13,7 @@ void setup(){
   // original 1456,2592
   img = loadImage("motiontest3E (Mobile).jpg");
   frame = loadImage("motiontest3F (Mobile).jpg");
-  ofile = createWriter("displacements.txt");
+  //ofile = createWriter("displacements.txt");
   
 }
 
@@ -21,7 +21,7 @@ void setup(){
 void draw() {
   if( counter == 1 ) {
     image(frame, 0, 0);
-    searchBlocks(img, frame, 25);
+    searchBlocks(img, frame, 5);
     counter = 0;
   }
 }
@@ -37,14 +37,14 @@ void movieEvent (Movie m){
 
 
 void searchBlocks(PImage A, PImage B, int gridsize){
-  int NEIGHBOURHOOD = 4 * gridsize;
+  int NEIGHBOURHOOD = 8 * gridsize;
   int LARGENUM = 20000000;
   int NUM_GRIDS = ((A.width*A.height) / (gridsize * gridsize)) + 1;
   //int NUM_GRIDS_ACROSS = round(A.width / gridsize) + 1;
-  int WLIMITPX = A.width - (gridsize);
-  int HLIMITPX = A.height - (gridsize);
-  int WGRIDACROSS = round(A.width / gridsize) + 1;
-  int HGRIDACROSS = round(A.height / gridsize) + 1;
+  int WLIMITPX = A.width - (gridsize-1);
+  int HLIMITPX = A.height - (gridsize-1);
+  int WGRIDACROSS = round(A.width / gridsize);
+  int HGRIDACROSS = round(A.height / gridsize);
   /*
   println("------DEBUG-------");
   println("NUM_GRIDS: " + NUM_GRIDS);
@@ -68,7 +68,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
     for(int ay = 0; ay < HLIMITPX; ay += gridsize){
       if(ay != 0) {dj++;}
       float [] dists = new float[(NEIGHBOURHOOD) * (NEIGHBOURHOOD)];
-      fillarray(dists, LARGENUM);
+      //fillarray(dists, LARGENUM);
       bl_index = 0;
       
       // iterate through all the grids in the second image NUM_GRIDS times
@@ -106,12 +106,12 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       // index is the index-th block to be processed, with this information
       //  we should be able to get the (x, y) cordinates for the block
       //   in question.
-      //int xp = ax + round(dists[index]);
-      //int yp = ay + round(dists[index]);
+      int xp = ax + round(dists[index]);
+      int yp = ay + round(dists[index]);
       
       
-      int xp = (index % WGRIDACROSS) * gridsize;
-      int yp = floor(index / HGRIDACROSS) * gridsize;
+      //int xp = (index % WGRIDACROSS) * gridsize;
+      //int yp = floor(index / HGRIDACROSS) * gridsize;
       
       println("**found block: (" + xp + "," + yp + ")");
       println("**current block: (" + ax + "," + ay + ")");
@@ -167,9 +167,16 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       bx = displacement[x][y][0] + int(gridsize/2);
       by = displacement[x][y][1] + int(gridsize/2);
       
-      // draw displacement
-      disfield.line(bx, by, ax, ay);
-      //println("Drawing Line...Block: " + blockcount++);
+      println("Drawing Line...Block: " + blockcount++);
+      println("** A (" + ax + "," + ay + ")");
+      println("** B (" + bx + "," + by + ")");
+      
+      //if ((bx > 0 && by > 0) && (ax > 0 && ay > 0)) {
+        // draw displacement
+        //disfield.line(bx, by, ax, ay);
+        arrowdraw(ax, bx, ay, by);
+     // }
+      
       
     }
   }
@@ -220,4 +227,17 @@ void fillarray(float[] arr, float value){
    }
    
   
+}
+
+
+
+void arrowdraw(int x1, int y1, int x2, int y2) { 
+  line(x1, y1, x2, y2);
+  pushMatrix(); 
+  translate(x2, y2); 
+  float a = atan2(x1-x2, y2-y1); 
+  rotate(a); 
+  line(0, 0, -10, -10);
+  line(0, 0, 10, -10); 
+  popMatrix(); 
 }
