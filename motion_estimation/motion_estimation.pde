@@ -213,12 +213,14 @@ float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
     for(int y = 0; y < blocksize; y++){
       cellA = (ax + x) + ((ay + y) * A.width);
       cellB = (bx + x) + ((by + y) * B.width);
-      sum += sqrt(pow(red(A.pixels[cellA]) - red(B.pixels[cellB]), 2)
+      sum += pow(red(A.pixels[cellA]) - red(B.pixels[cellB]), 2)
             + pow(green(A.pixels[cellA]) - green(B.pixels[cellB]), 2) 
-            + pow(blue(A.pixels[cellA]) - blue(B.pixels[cellB]), 2));
+            + pow(blue(A.pixels[cellA]) - blue(B.pixels[cellB]), 2);
     }
   }
-  return (float)sum;  
+  
+  sum = sqrt((float)sum);
+  return (float)sum; 
 }
 
 void fillarray(float[] arr, float value){
