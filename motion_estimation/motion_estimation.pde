@@ -5,26 +5,38 @@ PImage img;
 PImage overlay;
 int counter = 1;
 
+char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
+
 void setup(){
   
   // this is used for testing purposes...
   size(1536,512);
   // original 1456,2592
-  //img = loadImage("motiontest3D (Mobile).jpg");
-  //frame = loadImage("motiontest3E (Mobile).jpg");
-  img = loadImage("motiontest2A.png");
-  frame = loadImage("motiontest2B.png");
+  img = loadImage("motiontest3A (Mobile).jpg");
+  frame = loadImage("motiontest3B (Mobile).jpg");
+  //img = loadImage("motiontest2A.png");
+  //frame = loadImage("motiontest2B.png");
   
 }
 
 
 void draw() {
-  if( counter == 1 ) {
-    image(img, 512, 0);
-    image(frame, 1024, 0);
+  if( counter < 5 ) {
+    
+    frame = loadImage("motiontest3" + alphabet[counter] + " (Mobile).jpg");
+    
     image(img, 0, 0);
+    //image(frame, 1024, 0);
+    image(frame, 270, 0);
+    
     searchBlocks(img, frame, 9);
-    counter = 0;
+    
+    counter++;
+    
+    img = frame;
+    
+    delay(750);
+    
   }
 }
 
@@ -84,7 +96,8 @@ void searchBlocks(PImage A, PImage B, int gridsize){
           // complete the SSD for each block and store the result...
           if( bx > -1 && by > -1 && ax > -1 && ay > -1){
             float res = SSD(A, ax, ay, B, bx, by, gridsize);
-            if (res < resmin && res > 0){
+            //if (res < resmin && res > 0){
+            if (res < resmin){
               resmin = res;
               coords[0] = bx;
               coords[1] = by;
@@ -114,17 +127,17 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       exit();
       */
       
-      
+      /*
       println("**found block: (" + coords[0] + "," + coords[1] + ")");
       println("**current block: (" + ax + "," + ay + ")");
-      
+      */
       
       // insert the vector into the storage array
       
       displacement[di][dj][0] = coords[0];
       displacement[di][dj][1] = coords[1];
     
-      println("Proccessed Block: " + blockcount++);
+      /* println("Proccessed Block: " + blockcount++); */
     }
   }
   
@@ -154,9 +167,11 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       bx = displacement[x][y][0] + int(gridsize/2);
       by = displacement[x][y][1] + int(gridsize/2);
       
+      /*
       println("Drawing Line...Block: " + blockcount++);
       println("** A (" + ax + "," + ay + ")");
       println("** B (" + bx + "," + by + ")");
+      */
       
       if ( ax == bx && ay == by ){
         continue;
