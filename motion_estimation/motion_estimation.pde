@@ -4,7 +4,6 @@ PImage frame;
 PImage img;
 PImage overlay;
 int counter = 1;
-//PrintWriter ofile;
 
 void setup(){
   
@@ -15,7 +14,6 @@ void setup(){
   //frame = loadImage("motiontest3E (Mobile).jpg");
   img = loadImage("motiontest2A.png");
   frame = loadImage("motiontest2B.png");
-  //ofile = createWriter("displacements.txt");
   
 }
 
@@ -43,7 +41,7 @@ void movieEvent (Movie m){
 void searchBlocks(PImage A, PImage B, int gridsize){
   int NEIGHBOURHOOD = 8 * gridsize;
   int LARGENUM = 20000000;
-  int NUM_GRIDS = ((A.width*A.height) / (gridsize * gridsize)) + 1;
+  //int NUM_GRIDS = ((A.width*A.height) / (gridsize * gridsize)) + 1;
   //int NUM_GRIDS_ACROSS = round(A.width / gridsize) + 1;
   int WLIMITPX = A.width - (gridsize-1);
   int HLIMITPX = A.height - (gridsize-1);
@@ -74,12 +72,11 @@ void searchBlocks(PImage A, PImage B, int gridsize){
     dj = 0;
     for(int ay = 0; ay < HLIMITPX; ay += gridsize){
       if(ay != 0) {dj++;}
-      //float [] dists = new float[(NEIGHBOURHOOD) * (NEIGHBOURHOOD)];
-      //fillarray(dists, LARGENUM);
-      //bl_index = 0;
+      
       resmin = LARGENUM;
       coords[0] = ax;
       coords[1] = ay;
+      
       // iterate through all the grids in the second image NUM_GRIDS times
       //  for each grid block from the first image.
       for(int bx = ax - NEIGHBOURHOOD ; bx < ax + NEIGHBOURHOOD && (bx < WLIMITPX); bx += gridsize){
@@ -117,18 +114,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       exit();
       */
       
-      // compare all the results and select the smallest value
-      //int index = findmin(dists);
-      
-      // index is the index-th block to be processed, with this information
-      //  we should be able to get the (x, y) cordinates for the block
-      //   in question.
-      //int xp = ax + round(dists[index]);
-      //int yp = ay + round(dists[index]);
-      
-      
-      //int xp = (index % WGRIDACROSS) * gridsize;
-      //int yp = floor(index / HGRIDACROSS) * gridsize;
       
       println("**found block: (" + coords[0] + "," + coords[1] + ")");
       println("**current block: (" + ax + "," + ay + ")");
@@ -142,21 +127,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       println("Proccessed Block: " + blockcount++);
     }
   }
-  
-  /*
-  // debug output to file
-  for(int i=0; i < WGRIDACROSS; i++){
-    for(int j=0; j < HGRIDACROSS; j++){
-      ofile.println(displacement[di][dj][0] + ", " + displacement[di][dj][1]); 
-    }
-  }
-  ofile.flush();
-  ofile.close();
-  
-  exit();
-  */
-  
-  
   
   
   
@@ -209,17 +179,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
 }
 
-int findmin(float[] list){
- float result = min(list);
- println("**minimum result: " + result);
- int i = 0;
- // search the list to get the index of that min.
- for (i = 0; i < list.length; i++){
-   if(list[i] == result) break;
- }
- println("**(block, value): (" + i + ", " + list[i] + ")");
- return i;
-}
 
 // SSD(Block_i, Block_i+1) = squareroot ( 
 //
@@ -244,16 +203,6 @@ float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
   sum = sqrt((float)sum);
   return (float)sum; 
 }
-
-
-void fillarray(float[] arr, float value){
-   for(int i=0; i < arr.length; i++){
-     arr[i] = value;
-   }
-   
-  
-}
-
 
 
 void arrowdraw(int x1, int y1, int x2, int y2) { 
