@@ -76,10 +76,10 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       for(int bx = ax - NEIGHBOURHOOD ; (bx >= 0) && (bx < ax + NEIGHBOURHOOD) && (bx < WLIMITPX); bx += gridsize){
         for(int by = ay - NEIGHBOURHOOD; (by >= 0) && (by < ay + NEIGHBOURHOOD) && (by < HLIMITPX); by += gridsize){
           // complete the SSD for each block and store the result...
-          if(bx > -1 && by > -1 && ax > -1 && ay > -1){
+          
             float res = SSD(A, ax, ay, B, bx, by, gridsize);
             dists[bl_index++] = res;
-          }
+          
           /*
           println("A Coordinates: (" + ax + ", " + ay + ")");
           println("B Coordinates: (" + bx + ", " + by + ")");
