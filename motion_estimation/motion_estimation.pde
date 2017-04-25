@@ -4,7 +4,7 @@ PImage frame;
 PImage img;
 Movie m;
 int counter = 1;
-int M_BLOCKS = 9;
+int M_BLOCKS = 13;
 
 String moviepath = "video1.mp4";
 int framenumber = 1; 
@@ -48,7 +48,7 @@ void draw() {
       for( framenumber = 2; framenumber < bgctr; framenumber++ ){
         print("Processing Frame: ", framenumber-1);
         // open the frame
-        frame = loadImage(sketchPath("") + "BG/"+nf((framenumber-1) % bgctr, 4) + ".tif");
+        frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
 
         // Overwrite the background 
         image(frame, 0, 0);
@@ -57,7 +57,7 @@ void draw() {
         searchBlocks(temp, frame, M_BLOCKS);
         
         // save the frame
-        saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
+        saveFrame(sketchPath("") + "/composite/" + nf(framenumber-1, 4) + ".tif"); 
         
         temp = frame;
         
@@ -70,7 +70,8 @@ void draw() {
       m.play();
     }
     else if (phase == 2){
-            exit(); // End the program when the second movie finishes
+      println("Program execution finished! (level 1)");
+      exit(); // End the program when the second movie finishes
     }
   }
   
@@ -84,9 +85,14 @@ void draw() {
         m.save(sketchPath("") + "BG/"+nf(framenumber, 4) + ".tif"); // They say tiff is faster to save, but larger in disks 
       }
       else if (phase == 2) {
+        if(framenumber < bgctr - 1){
          // play back all the frames at the desired framerate:
          frame = loadImage(sketchPath("") + "/composite/"+nf(framenumber % bgctr, 4) + ".tif");
          image(frame, 0, 0);
+        }else{
+           println("Program execution finished! (level 2)");
+           exit(); 
+        }
     }
     
     framenumber++; 
@@ -102,12 +108,13 @@ void movieEvent (Movie m){
 
 
 void searchBlocks(PImage A, PImage B, int gridsize){
-  int NEIGHBOURHOOD = 8 * gridsize;
+  int NEIGHBOURHOOD = 4 * gridsize;
   int LARGENUM = 20000000;
   int WLIMITPX = A.width - (gridsize-1);
   int HLIMITPX = A.height - (gridsize-1);
   int WGRIDACROSS = round(A.width / gridsize);
   int HGRIDACROSS = round(A.height / gridsize);
+  int HALFGRID = int(gridsize/2);
 
   // 3D Matrix for holding the displacements of each image
   int[][][] displacement = new int[WGRIDACROSS][HGRIDACROSS][2];
@@ -138,7 +145,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
           // complete the SSD for each block and store the result...
           if( bx > -1 && by > -1 && ax > -1 && ay > -1){
             float res = SSD(A, ax, ay, B, bx, by, gridsize);
-            //if (res < resmin && res > 0){
             if (res < resmin){
               resmin = res;
               coords[0] = bx;
@@ -167,18 +173,18 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   int bx = 0;
   int by = 0;
   
-  PGraphics disfield = createGraphics(A.width, B.height);
+  PGraphics disfield = createGraphics(A.width, A.height);
   disfield.beginDraw();
   
   for(int x=0; x < WGRIDACROSS; x++){
     for(int y=0; y < HGRIDACROSS; y++){
       // find the centre of the block from the first image:
-      ax = (x*gridsize) + int(gridsize/2);
-      ay = (y*gridsize) + int(gridsize/2);
+      ax = (x*gridsize) + HALFGRID;
+      ay = (y*gridsize) + HALFGRID;
       
       // find the centre of the block from the displacement:
-      bx = displacement[x][y][0] + int(gridsize/2);
-      by = displacement[x][y][1] + int(gridsize/2);
+      bx = displacement[x][y][0] + HALFGRID;
+      by = displacement[x][y][1] + HALFGRID;
       
       // if any of the blocks are the same, don't draw anything
       if ( ax == bx && ay == by ){
@@ -195,13 +201,16 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   // end the drawing on the graphic
   disfield.endDraw();
   image(disfield, 0, 0); 
+  
+  // release all memory
+  
 }
 
 
 // SSD(Block_i, Block_i+1) = squareroot ( 
 //  The minimum sum difference of each pixel
 float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
-  double sum = 0;
+  float sum = 0;
   int cellA = 0;
   int cellB = 0;
   
@@ -216,7 +225,7 @@ float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
   }
   
   //sum = sqrt((float)sum);
-  return (float)sum; 
+  return sum; 
 }
 
 
