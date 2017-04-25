@@ -1,26 +1,37 @@
 import processing.video.*;
 
+
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
 PImage frame;
 PImage img;
 PImage overlay;
-int counter = 1;
+int counter = 0;
+Movie video;
 
 char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
 
 void setup(){
   
   // this is used for testing purposes...
-  size(1536,512);
+  //size(1536,512);
+  size(1296,972, P2D);
   // original 1456,2592
-  img = loadImage("motiontest3A (Mobile).jpg");
-  frame = loadImage("motiontest3B (Mobile).jpg");
+  //img = loadImage("motiontest3A (Mobile).jpg");
+  //frame = loadImage("motiontest3B (Mobile).jpg");
   //img = loadImage("motiontest2A.png");
   //frame = loadImage("motiontest2B.png");
-  
+  video = new Movie(this, sketchPath("video1.mp4"));
+  video.loop();
 }
 
 
 void draw() {
+  /*
+  // testing code
   if( counter < 5 ) {
     
     frame = loadImage("motiontest3" + alphabet[counter] + " (Mobile).jpg");
@@ -36,8 +47,11 @@ void draw() {
     img = frame;
     
     delay(750);
-    
   }
+  
+  */
+  image(video, 0, 0);
+  
 }
 
 
@@ -46,7 +60,21 @@ void draw() {
 // only requied when there is a movie being played.
 // otherwise, ignore.
 void movieEvent (Movie m){
+  
+  if ( counter > 0 ){
+     m.read();
+     //image(m, 0, 0);
+  
+    //searchBlocks(frame, m, 25);
 
+    frame = m;
+  } else {
+    m.read();
+    //image(m, 0, 0);
+
+    frame = m;
+    counter++;
+  }  //<>//
 }
 
 
@@ -153,9 +181,9 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   int bx = 0;
   int by = 0;
   
-  PGraphics disfield = createGraphics(A.width, B.height);
-  disfield.beginDraw();
-  disfield.stroke(255,255,255);
+  PGraphics disfield = createGraphics(A.width, A.height, P2D); //<>//
+  disfield.beginDraw(); //<>//
+  disfield.stroke(255,255,255); //<>//
   
   for(int x=0; x < WGRIDACROSS; x++){
     for(int y=0; y < HGRIDACROSS; y++){
@@ -190,7 +218,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   // end the drawing on the graphic
   disfield.endDraw();
-  image(disfield, 0, 0);  
+  image(disfield, 0, 0);   //<>//
   
 }
 
