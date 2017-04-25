@@ -2,8 +2,14 @@ import processing.video.*;
 
 PImage frame;
 PImage img;
-PImage overlay;
+Movie m;
 int counter = 1;
+int M_BLOCKS = 25;
+
+String moviepath = "video1.mp4";
+int framenumber = 1; 
+int phase = 1; // The phase for precessing pipeline : 1, saving frames of background; 2. overwrite the background frames with 
+int bgctr = 0;
 
 char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
 
@@ -12,15 +18,18 @@ void setup(){
   // this is used for testing purposes...
   size(1536,512);
   // original 1456,2592
-  img = loadImage("motiontest3A (Mobile).jpg");
-  frame = loadImage("motiontest3B (Mobile).jpg");
+  //img = loadImage("motiontest3A (Mobile).jpg");
+  //frame = loadImage("motiontest3B (Mobile).jpg");
   //img = loadImage("motiontest2A.png");
   //frame = loadImage("motiontest2B.png");
+  m = new Movie(this, sketchPath(moviepath));
   
 }
 
 
 void draw() {
+  
+  /*
   if( counter < 5 ) {
     
     frame = loadImage("motiontest3" + alphabet[counter] + " (Mobile).jpg");
@@ -38,9 +47,51 @@ void draw() {
     delay(750);
     
   }
+  */
+  // Clear the background with black colour
+  float time = m.time();
+  float duration = m.duration();
+  float whereweare = time / duration;
+
+  if( time >= duration ) { 
+    if (phase == 1) {
+      m = new Movie(this, sketchPath(moviepath));
+      m.frameRate(120); // Play your movie faster
+      m.play();
+      phase = 2;
+      bgctr = framenumber;
+      framenumber = 1;
+    }
+    else if (phase == 2){
+            exit(); // End the program when the second movie finishes
+    }
+  }
+
+    if (m.available()){
+      background(0, 0, 0);
+      m.read(); 
+        
+        if (phase == 1){
+          image(m, 0, 0);
+          m.save(sketchPath("") + "BG/"+nf(framenumber, 4) + ".tif"); // They say tiff is faster to save, but larger in disks 
+        }
+        else if (phase == 2) {
+            frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
+  
+            // Overwrite the background 
+            image(m, 0, 0);
+            
+            // process the difference
+            searchBlocks(frame, m, M_BLOCKS);
+            
+            // display the difference on the frame (lines, etc)
+            // done in above function
+            
+            // save the frame
+            saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
+      }
+    }
 }
-
-
 
 
 // only requied when there is a movie being played.
@@ -190,8 +241,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   // end the drawing on the graphic
   disfield.endDraw();
-  image(disfield, 0, 0);  
-  
+  image(disfield, 0, 0); 
 }
 
 
@@ -218,6 +268,7 @@ float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
   sum = sqrt((float)sum);
   return (float)sum; 
 }
+
 
 
 void arrowdraw(int x1, int y1, int x2, int y2) { 
