@@ -4,7 +4,7 @@ PImage frame;
 PImage img;
 Movie m;
 int counter = 1;
-int M_BLOCKS = 25;
+int M_BLOCKS = 15;
 
 String moviepath = "video1.mp4";
 int framenumber = 1; 
@@ -14,83 +14,100 @@ int bgctr = 0;
 char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
 
 void setup(){
+  size(1296,972);
+  frameRate(120); // Make your draw function run faster
   
-  // this is used for testing purposes...
-  size(1536,512);
-  // original 1456,2592
-  //img = loadImage("motiontest3A (Mobile).jpg");
-  //frame = loadImage("motiontest3B (Mobile).jpg");
-  //img = loadImage("motiontest2A.png");
-  //frame = loadImage("motiontest2B.png");
   m = new Movie(this, sketchPath(moviepath));
+  m.frameRate(120); // Play your movie faster
   
+  framenumber = 0; 
+  fill(255, 255, 255); // Make the drawing colour white
+  
+  //play the movie one time, no looping 
+  m.play();  
 }
 
 
 void draw() {
   
-  /*
-  if( counter < 5 ) {
-    
-    frame = loadImage("motiontest3" + alphabet[counter] + " (Mobile).jpg");
-    
-    image(img, 0, 0);
-    //image(frame, 1024, 0);
-    image(frame, 270, 0);
-    
-    searchBlocks(img, frame, 9);
-    
-    counter++;
-    
-    img = frame;
-    
-    delay(750);
-    
-  }
-  */
   // Clear the background with black colour
   float time = m.time();
   float duration = m.duration();
-  float whereweare = time / duration;
-
+  
+  
   if( time >= duration ) { 
     if (phase == 1) {
+      
+      phase = 2;
+      bgctr = framenumber;
+      PImage temp;
+      framenumber = 1;
+      
+      temp = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
+      
+      for( framenumber = 2; framenumber < bgctr; framenumber++ ){
+        print("Processing Frame: ", framenumber);
+        // open the frame
+        frame = loadImage(sketchPath("") + "BG/"+nf(framenumber-1 % bgctr, 4) + ".tif");
+
+        // Overwrite the background 
+        image(frame, 0, 0);
+        
+        // process the difference and display the difference on the frame (lines, etc)
+        searchBlocks(temp, frame, M_BLOCKS);
+        
+        // save the frame
+        saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
+        
+        temp = frame;
+        
+        println(" ... [success]");
+      }
+      
+      framenumber = 1;
       m = new Movie(this, sketchPath(moviepath));
       m.frameRate(120); // Play your movie faster
       m.play();
-      phase = 2;
-      bgctr = framenumber;
-      framenumber = 1;
     }
     else if (phase == 2){
             exit(); // End the program when the second movie finishes
     }
   }
-
-    if (m.available()){
-      background(0, 0, 0);
-      m.read(); 
-        
-        if (phase == 1){
-          image(m, 0, 0);
-          m.save(sketchPath("") + "BG/"+nf(framenumber, 4) + ".tif"); // They say tiff is faster to save, but larger in disks 
-        }
-        else if (phase == 2) {
-            frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
   
-            // Overwrite the background 
-            image(m, 0, 0);
-            
-            // process the difference
-            searchBlocks(frame, m, M_BLOCKS);
-            
-            // display the difference on the frame (lines, etc)
-            // done in above function
-            
-            // save the frame
-            saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
+
+  if (m.available()){
+    background(0, 0, 0);
+    m.read(); 
+      
+      if (phase == 1){
+        image(m, 0, 0);
+        m.save(sketchPath("") + "BG/"+nf(framenumber, 4) + ".tif"); // They say tiff is faster to save, but larger in disks 
       }
+      else if (phase == 2) {
+         // play back all the frames at the desired framerate:
+         frame = loadImage(sketchPath("") + "composite/"+nf(framenumber % bgctr, 4) + ".tif");
+         image(frame, 0, 0);
+        /*
+        
+        frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
+
+          // Overwrite the background 
+          image(m, 0, 0);
+          
+          // process the difference
+          searchBlocks(frame, m, M_BLOCKS);
+          
+          // display the difference on the frame (lines, etc)
+          // done in above function
+          
+          // save the frame
+          saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
+          
+          */
     }
+    
+    framenumber++; 
+  }
 }
 
 
@@ -195,7 +212,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   
   // TODO:  Process the displacements and display them somehow
-  println("Drawing Displacements...");
+  //println("Drawing Displacements...");
   
   blockcount = 0;
   
@@ -265,7 +282,7 @@ float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
     }
   }
   
-  sum = sqrt((float)sum);
+  //sum = sqrt((float)sum);
   return (float)sum; 
 }
 
