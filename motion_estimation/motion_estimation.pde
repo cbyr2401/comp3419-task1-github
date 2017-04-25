@@ -108,7 +108,7 @@ void movieEvent (Movie m){
 
 
 void searchBlocks(PImage A, PImage B, int gridsize){
-  int NEIGHBOURHOOD = 4 * gridsize;
+  int NEIGHBOURHOOD = 3 * gridsize;
   int LARGENUM = 20000000;
   int WLIMITPX = A.width - (gridsize-1);
   int HLIMITPX = A.height - (gridsize-1);
@@ -126,6 +126,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   // temporary storage for the 
   int[] coords = new int[2];
   float resmin = LARGENUM;
+  float res = 0;
   
   // variables for drawing on the lines
   PGraphics disfield = createGraphics(A.width, A.height);
@@ -133,11 +134,11 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   // iterate through all the grids from the first image 1 time.
   for(int ax = 0; ax < WLIMITPX; ax += gridsize){
-    //if(ax != 0) {di++; }
+    // reset the row counter.
     dj = 0;
     for(int ay = 0; ay < HLIMITPX; ay += gridsize){
-      //if(ay != 0) {dj++;}
-      
+      // set the starting values so that if the same block comes up, 
+      // it will be ok.
       resmin = LARGENUM;
       coords[0] = ax;
       coords[1] = ay;
@@ -148,13 +149,12 @@ void searchBlocks(PImage A, PImage B, int gridsize){
         for(int by = ay - NEIGHBOURHOOD; by < ay + NEIGHBOURHOOD && (by < HLIMITPX); by += gridsize){
           // complete the SSD for each block and store the result...
           if( bx > -1 && by > -1 && ax > -1 && ay > -1){
-            float res = SSD(A, ax, ay, B, bx, by, gridsize);
+            res = SSD(A, ax, ay, B, bx, by, gridsize);
             if (res < resmin){
               resmin = res;
               coords[0] = bx;
               coords[1] = by;
-            }
-            
+            } 
           }
           
           if(bx >= WLIMITPX || by >= HLIMITPX) break;
@@ -172,8 +172,8 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       }
       
       // draw displacement
-      disfield.line(coords[0], coords[1], ax, ay);
-      disfield.ellipse(coords[0],coords[1],2,2);
+      disfield.line(coords[0]+HALFGRID, coords[1]+HALFGRID, ax+HALFGRID, ay+HALFGRID);
+      disfield.ellipse(coords[0]+HALFGRID,coords[1]+HALFGRID,2,2);
       
       // increment the y-coordinate counter for the displacement array
       dj++;
@@ -182,49 +182,9 @@ void searchBlocks(PImage A, PImage B, int gridsize){
     // increment the x-coordinate counter for the displacement array
     di++;
   }
-  
-  
-  
-  // TODO:  Process the displacements and display them somehow
-  //println("Drawing Displacements...");
-  
-  /*
-  int ax = 0;
-  int ay = 0;
-  int bx = 0;
-  int by = 0;
-  
-  //PGraphics disfield = createGraphics(A.width, A.height);
-  //disfield.beginDraw();
-  
-  for(int x=0; x < WGRIDACROSS; x++){
-    for(int y=0; y < HGRIDACROSS; y++){
-      // find the centre of the block from the first image:
-      ax = (x*gridsize) + HALFGRID;
-      ay = (y*gridsize) + HALFGRID;
-      
-      // find the centre of the block from the displacement:
-      bx = displacement[x][y][0] + HALFGRID;
-      by = displacement[x][y][1] + HALFGRID;
-      
-      // if any of the blocks are the same, don't draw anything
-      if ( ax == bx && ay == by ){
-        continue;
-      }
-      
-      // draw displacement
-      disfield.line(bx, by, ax, ay);
-      disfield.ellipse(bx,by,2,2);
-      //arrowdraw(ax, bx, ay, by);
-    }
-  }
-  */
- 
- 
+
   // end the drawing on the graphic
   disfield.endDraw();
-  
-  
   image(disfield, 0, 0); 
   
   // release all memory
