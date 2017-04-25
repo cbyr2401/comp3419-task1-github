@@ -4,7 +4,7 @@ PImage frame;
 PImage img;
 Movie m;
 int counter = 1;
-int M_BLOCKS = 15;
+int M_BLOCKS = 9;
 
 String moviepath = "video1.mp4";
 int framenumber = 1; 
@@ -46,9 +46,9 @@ void draw() {
       temp = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
       
       for( framenumber = 2; framenumber < bgctr; framenumber++ ){
-        print("Processing Frame: ", framenumber);
+        print("Processing Frame: ", framenumber-1);
         // open the frame
-        frame = loadImage(sketchPath("") + "BG/"+nf(framenumber-1 % bgctr, 4) + ".tif");
+        frame = loadImage(sketchPath("") + "BG/"+nf((framenumber-1) % bgctr, 4) + ".tif");
 
         // Overwrite the background 
         image(frame, 0, 0);
@@ -85,7 +85,7 @@ void draw() {
       }
       else if (phase == 2) {
          // play back all the frames at the desired framerate:
-         frame = loadImage(sketchPath("") + "composite/"+nf(framenumber % bgctr, 4) + ".tif");
+         frame = loadImage(sketchPath("") + "/composite/"+nf(framenumber % bgctr, 4) + ".tif");
          image(frame, 0, 0);
         /*
         
