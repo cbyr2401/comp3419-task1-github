@@ -127,12 +127,16 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   int[] coords = new int[2];
   float resmin = LARGENUM;
   
+  // variables for drawing on the lines
+  PGraphics disfield = createGraphics(A.width, A.height);
+  disfield.beginDraw();
+  
   // iterate through all the grids from the first image 1 time.
   for(int ax = 0; ax < WLIMITPX; ax += gridsize){
-    if(ax != 0) {di++; }
+    //if(ax != 0) {di++; }
     dj = 0;
     for(int ay = 0; ay < HLIMITPX; ay += gridsize){
-      if(ay != 0) {dj++;}
+      //if(ay != 0) {dj++;}
       
       resmin = LARGENUM;
       coords[0] = ax;
@@ -160,21 +164,38 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       // insert the vector into the storage array
       displacement[di][dj][0] = coords[0];
       displacement[di][dj][1] = coords[1];
-    
+      
+      // draw the vector onto the displacement field
+      // if any of the blocks are the same, don't draw anything
+      if ( ax == coords[0] && ay == coords[1] ){
+        continue;
+      }
+      
+      // draw displacement
+      disfield.line(coords[0], coords[1], ax, ay);
+      disfield.ellipse(coords[0],coords[1],2,2);
+      
+      // increment the y-coordinate counter for the displacement array
+      dj++;
     }
+    
+    // increment the x-coordinate counter for the displacement array
+    di++;
   }
   
   
   
   // TODO:  Process the displacements and display them somehow
   //println("Drawing Displacements...");
+  
+  /*
   int ax = 0;
   int ay = 0;
   int bx = 0;
   int by = 0;
   
-  PGraphics disfield = createGraphics(A.width, A.height);
-  disfield.beginDraw();
+  //PGraphics disfield = createGraphics(A.width, A.height);
+  //disfield.beginDraw();
   
   for(int x=0; x < WGRIDACROSS; x++){
     for(int y=0; y < HGRIDACROSS; y++){
@@ -197,9 +218,13 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       //arrowdraw(ax, bx, ay, by);
     }
   }
-  
+  */
+ 
+ 
   // end the drawing on the graphic
   disfield.endDraw();
+  
+  
   image(disfield, 0, 0); 
   
   // release all memory
