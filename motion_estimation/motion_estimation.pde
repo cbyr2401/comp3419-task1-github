@@ -1,41 +1,26 @@
 import processing.video.*;
 
-
-//import processing.core.*; 
-//import processing.data.*; 
-//import processing.event.*; 
-//import processing.opengl.*; 
-
 PImage frame;
 PImage img;
 PImage overlay;
-PGraphics disfield;
-int counter = 0;
-Movie video;
+int counter = 1;
 
 char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
 
 void setup(){
   
   // this is used for testing purposes...
-  //size(1536,512);
-  size(1296,972, JAVA2D);
-  noLoop();
+  size(1536,512);
   // original 1456,2592
-  //img = loadImage("motiontest3A (Mobile).jpg");
-  //frame = loadImage("motiontest3B (Mobile).jpg");
+  img = loadImage("motiontest3A (Mobile).jpg");
+  frame = loadImage("motiontest3B (Mobile).jpg");
   //img = loadImage("motiontest2A.png");
   //frame = loadImage("motiontest2B.png");
-  video = new Movie(this, sketchPath("video1.mp4"));
-  println("Video (", video.width, ",", video.height, ")");
-  video.loop();
   
 }
 
 
 void draw() {
-  /*
-  // testing code
   if( counter < 5 ) {
     
     frame = loadImage("motiontest3" + alphabet[counter] + " (Mobile).jpg");
@@ -51,14 +36,7 @@ void draw() {
     img = frame;
     
     delay(750);
-  }
-  
-  */
-  
-  image(video, 0, 0);
-  if ( counter > 1 ){
-    //disfield = createGraphics(video.width, video.height, JAVA2D);
-    searchBlocks(img, frame, 25);
+    
   }
 }
 
@@ -68,22 +46,7 @@ void draw() {
 // only requied when there is a movie being played.
 // otherwise, ignore.
 void movieEvent (Movie m){
-  
-  if ( counter > 0 ){
-     m.read();
-     //image(m, 0, 0);
-    img = frame;
-    frame = m;
-    counter++;
-    //searchBlocks(img, frame, 25);
-    redraw();
-  } else {
-    m.read();
-    //image(m, 0, 0);
 
-    frame = m;
-    counter++;
-  } 
 }
 
 
@@ -190,10 +153,9 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   int bx = 0;
   int by = 0;
   
-  
-  //disfield.beginDraw();
-  //println("Setting up the line color...");
-  //disfield.stroke(255,255,255);
+  PGraphics disfield = createGraphics(A.width, B.height);
+  disfield.beginDraw();
+  disfield.stroke(255,255,255);
   
   for(int x=0; x < WGRIDACROSS; x++){
     for(int y=0; y < HGRIDACROSS; y++){
@@ -227,8 +189,8 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   }
   
   // end the drawing on the graphic
-  //disfield.endDraw();
-  //image(disfield, 0, 0);  
+  disfield.endDraw();
+  image(disfield, 0, 0);  
   
 }
 
