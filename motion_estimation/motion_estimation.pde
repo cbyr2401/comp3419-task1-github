@@ -87,23 +87,6 @@ void draw() {
          // play back all the frames at the desired framerate:
          frame = loadImage(sketchPath("") + "/composite/"+nf(framenumber % bgctr, 4) + ".tif");
          image(frame, 0, 0);
-        /*
-        
-        frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
-
-          // Overwrite the background 
-          image(m, 0, 0);
-          
-          // process the difference
-          searchBlocks(frame, m, M_BLOCKS);
-          
-          // display the difference on the frame (lines, etc)
-          // done in above function
-          
-          // save the frame
-          saveFrame(sketchPath("") + "/composite/" + nf(framenumber, 4) + ".tif"); 
-          
-          */
     }
     
     framenumber++; 
@@ -121,28 +104,19 @@ void movieEvent (Movie m){
 void searchBlocks(PImage A, PImage B, int gridsize){
   int NEIGHBOURHOOD = 8 * gridsize;
   int LARGENUM = 20000000;
-  //int NUM_GRIDS = ((A.width*A.height) / (gridsize * gridsize)) + 1;
-  //int NUM_GRIDS_ACROSS = round(A.width / gridsize) + 1;
   int WLIMITPX = A.width - (gridsize-1);
   int HLIMITPX = A.height - (gridsize-1);
   int WGRIDACROSS = round(A.width / gridsize);
   int HGRIDACROSS = round(A.height / gridsize);
-  /*
-  println("------DEBUG-------");
-  println("NUM_GRIDS: " + NUM_GRIDS);
-  println("NUM_GRIDS_ACROSS: " + NUM_GRIDS_ACROSS);
-  println("------END DEBUG-------");
-  delay(1500);
-  */
-  
+
+  // 3D Matrix for holding the displacements of each image
   int[][][] displacement = new int[WGRIDACROSS][HGRIDACROSS][2];
   
+  // index variables for each image
   int di = 0;
   int dj = 0;
-  int bl_index = 0;
-  int blockcount = 0;
-  int loopcount = 0;
   
+  // temporary storage for the 
   int[] coords = new int[2];
   float resmin = LARGENUM;
   
@@ -174,38 +148,13 @@ void searchBlocks(PImage A, PImage B, int gridsize){
           }
           
           if(bx >= WLIMITPX || by >= HLIMITPX) break;
-          
-          /*
-          println("A Coordinates: (" + ax + ", " + ay + ")");
-          println("B Coordinates: (" + bx + ", " + by + ")");
-          println("loop count: | " + loopcount + " |");
-          println("SSD: " + dists[bl_index-1]);
-          delay(750);
-          loopcount += 1;
-          */
         }
       }
       
-      loopcount = 0;
-      
-      /*
-      for(int i=0; i < NUM_GRIDS; i++){
-        println(dists[i]);
-      }
-      exit();
-      */
-      
-      /*
-      println("**found block: (" + coords[0] + "," + coords[1] + ")");
-      println("**current block: (" + ax + "," + ay + ")");
-      */
-      
       // insert the vector into the storage array
-      
       displacement[di][dj][0] = coords[0];
       displacement[di][dj][1] = coords[1];
     
-      /* println("Proccessed Block: " + blockcount++); */
     }
   }
   
@@ -213,9 +162,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   // TODO:  Process the displacements and display them somehow
   //println("Drawing Displacements...");
-  
-  blockcount = 0;
-  
   int ax = 0;
   int ay = 0;
   int bx = 0;
@@ -223,7 +169,6 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   
   PGraphics disfield = createGraphics(A.width, B.height);
   disfield.beginDraw();
-  disfield.stroke(255,255,255);
   
   for(int x=0; x < WGRIDACROSS; x++){
     for(int y=0; y < HGRIDACROSS; y++){
@@ -235,24 +180,15 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       bx = displacement[x][y][0] + int(gridsize/2);
       by = displacement[x][y][1] + int(gridsize/2);
       
-      /*
-      println("Drawing Line...Block: " + blockcount++);
-      println("** A (" + ax + "," + ay + ")");
-      println("** B (" + bx + "," + by + ")");
-      */
-      
+      // if any of the blocks are the same, don't draw anything
       if ( ax == bx && ay == by ){
         continue;
       }
       
-      //if ((bx > 0 && by > 0) && (ax > 0 && ay > 0)) {
-        // draw displacement
-        disfield.line(bx, by, ax, ay);
-        disfield.ellipse(bx,by,2,2);
-        //arrowdraw(ax, bx, ay, by);
-     // }
-      
-      
+      // draw displacement
+      disfield.line(bx, by, ax, ay);
+      disfield.ellipse(bx,by,2,2);
+      //arrowdraw(ax, bx, ay, by);
     }
   }
   
@@ -263,10 +199,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
 
 
 // SSD(Block_i, Block_i+1) = squareroot ( 
-//
-//
-//
-
+//  The minimum sum difference of each pixel
 float SSD(PImage A, int ax, int ay, PImage B, int bx, int by, int blocksize){
   double sum = 0;
   int cellA = 0;
