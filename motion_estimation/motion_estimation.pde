@@ -2,14 +2,18 @@ import processing.video.*;
 
 PImage frame;
 PImage img;
+PImage overlay;
+
 Movie m;
 int counter = 1;
 int M_BLOCKS = 13;
 
-String moviepath = "video1.mp4";
+String moviepath = "video3.mp4";
 int framenumber = 1; 
 int phase = 1; // The phase for precessing pipeline : 1, saving frames of background; 2. overwrite the background frames with 
 int bgctr = 0;
+
+PGraphics disfield;
 
 char[] alphabet = {'A', 'B', 'C', 'E', 'F', 'G', 'H'};
 
@@ -51,10 +55,18 @@ void draw() {
         frame = loadImage(sketchPath("") + "BG/"+nf(framenumber % bgctr, 4) + ".tif");
 
         // Overwrite the background 
-        image(frame, 0, 0);
+        clear();
+        background(0);
         
         // process the difference and display the difference on the frame (lines, etc)
         searchBlocks(temp, frame, M_BLOCKS);
+        
+        // save the displacement field
+        saveFrame(sketchPath("") + "/displacement/" + nf(framenumber-1, 4) + ".tif"); 
+        
+        // Overwrite the background 
+        image(frame, 0, 0);
+        image(disfield, 0, 0);
         
         // save the frame
         saveFrame(sketchPath("") + "/composite/" + nf(framenumber-1, 4) + ".tif"); 
@@ -115,7 +127,7 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   int WGRIDACROSS = round(A.width / gridsize);
   int HGRIDACROSS = round(A.height / gridsize);
   int HALFGRID = int(gridsize/2);
-
+  
   // 3D Matrix for holding the displacements of each image
   int[][][] displacement = new int[WGRIDACROSS][HGRIDACROSS][2];
   
@@ -129,8 +141,9 @@ void searchBlocks(PImage A, PImage B, int gridsize){
   float res = 0;
   
   // variables for drawing on the lines
-  PGraphics disfield = createGraphics(A.width, A.height);
+  disfield = createGraphics(A.width, A.height);
   disfield.beginDraw();
+  disfield.stroke(255,255,255);
   
   // iterate through all the grids from the first image 1 time.
   for(int ax = 0; ax < WLIMITPX; ax += gridsize){
@@ -161,9 +174,14 @@ void searchBlocks(PImage A, PImage B, int gridsize){
         }
       }
       
-      // insert the vector into the storage array
-      displacement[di][dj][0] = coords[0];
-      displacement[di][dj][1] = coords[1];
+      if ( resmin > 5000 ) {
+        // insert the vector into the storage array
+        displacement[di][dj][0] = coords[0];
+        displacement[di][dj][1] = coords[1];
+      } else {
+        continue;
+      }
+      
       
       // draw the vector onto the displacement field
       // if any of the blocks are the same, don't draw anything
@@ -173,7 +191,8 @@ void searchBlocks(PImage A, PImage B, int gridsize){
       
       // draw displacement
       disfield.line(coords[0]+HALFGRID, coords[1]+HALFGRID, ax+HALFGRID, ay+HALFGRID);
-      disfield.ellipse(coords[0]+HALFGRID,coords[1]+HALFGRID,2,2);
+      disfield.ellipse(coords[0]+HALFGRID,coords[1]+HALFGRID,3,3);
+      disfield.ellipse(ax+HALFGRID,ay+HALFGRID,3,3);
       
       // increment the y-coordinate counter for the displacement array
       dj++;
